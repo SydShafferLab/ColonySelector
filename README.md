@@ -5,6 +5,6 @@ Set up the enviroment for the Gui with the following comand line:
 
             conda env create -f path/to/enviroment.yml 
 
-This will create a conda enviroment with the nesesary packages to run the Gui. Information on how to run these scripts can be found in the wiki [here](https://github.com/raanreye/ColonySelector/wiki)
+This will create a conda enviroment with the nesesary packages to run the Gui. Information on how to run these scripts can be found in the wiki [here](https://github.com/SydShafferLab/ColonySelector/wiki)
 
 :)
