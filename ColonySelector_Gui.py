@@ -323,12 +323,16 @@ class Ui_MainWindow(object):
         self.lineEdit_3.setText(str(n_components[models.index(min(models))]))
 
     def plot_predicted(self):
+
         self.graphicsView.clear()
+        self.z = int(self.lineEdit_3.text())
+
 
         gmm = mixture.GaussianMixture(n_components=self.z,random_state = 0)
         gmm.fit(self.X)
         self.labels = gmm.predict(self.X)
         self.colonyID = gmm.predict(self.X)
+
 
 
         new_label = []
