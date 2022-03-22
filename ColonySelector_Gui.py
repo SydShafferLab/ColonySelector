@@ -22,8 +22,8 @@ from matplotlib.path import Path
 #
 # output_path = path to output folder.
 
-paths_to_data = "/Users/raul/Documents/GitHub/colony_selector/test_data/*.pkl"
-output_path = "/Users/raul/Documents/GitHub/colony_selector/example_output/"
+paths_to_data = "/Users/raul/Documents/GitHub/ColonySelector/test_data/*.pkl"
+output_path = "/Users/raul/Documents/GitHub/ColonySelector/example_output/"
 
 
 #__________________________________________________________________________

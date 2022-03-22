@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 import glob
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 #Path to files from Step1
 paths_to_data = '/Users/raul/Documents/GitHub/ColonySelector/example_output/*.pkl'
@@ -12,7 +13,7 @@ paths_to_data = '/Users/raul/Documents/GitHub/ColonySelector/example_output/*.pk
 paths_to_data  = glob.glob(paths_to_data)
 
 #Name of samples (extract from file name)
-names = ["clean_test_data1.pkl","clean_test_data1.pkl"]
+names = ["clean_test_data1.pkl","clean_test_data2.pkl"]
 
 
 #Extract the data
@@ -36,12 +37,13 @@ for i,name in enumerate(names):
 			print(path_crop)
 
 			df_points = pd.read_pickle(path_crop)
+			print(df_points)
 
 			#Get all colony sizes
 
-			for k,m in enumerate(np.unique(df_points['color'])):
+			for k,m in enumerate(np.unique(df_points['colonyID'])):
 
-				colony_hold.append(len(df_points.loc[df_points['color'] == m]))
+				colony_hold.append(len(df_points.loc[df_points['colonyID'] == m]))
 				colony_name.append(file_name)
 				    
 	colony_all_files.append(colony_hold)
