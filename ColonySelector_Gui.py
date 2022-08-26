@@ -1,3 +1,13 @@
+# pyuic5 -x mainwindow.ui -o updated_gui_Final.py
+
+
+
+
+# import pyqtgraph.examples
+  
+# # run this examples
+# pyqtgraph.examples.run()
+
 import os
 import glob
 import numpy as np
@@ -13,6 +23,8 @@ from pyqtgraph import PlotWidget
 
 from sklearn import mixture
 from matplotlib.path import Path
+from PIL import Image , ImageEnhance
+Image.MAX_IMAGE_PIXELS = 1000000000 
 
 #__________________________________________________________________________
 #_________________________User defined Paths:______________________________
@@ -23,7 +35,14 @@ from matplotlib.path import Path
 # output_path = path to output folder.
 
 paths_to_data = "/Users/raul/Documents/GitHub/ColonySelector/test_data/*.pkl"
+
 output_path = "/Users/raul/Documents/GitHub/ColonySelector/example_output/"
+
+# image and name of pkl file must be the same
+paths_to_images = "/Users/raul/Documents/GitHub/ColonySelector/test_data/"
+
+is_tif_or_jpg = ".jpg" # is the image in ".jpg" or ".tif" format
+
 
 
 #__________________________________________________________________________
@@ -36,13 +55,18 @@ class Ui_MainWindow(object):
     def __init__(self, paths_to_data, output_path):
         
         self.paths_to_data = glob.glob(paths_to_data)
+
         self.numberpath = 0
         self.output_path = output_path
         self.filename = self.paths_to_data[self.numberpath].split('/')[-1]
 
+        if paths_to_images != "":
+            self.filename_image = paths_to_images + self.filename.split('.')[0] + is_tif_or_jpg#tif"
+        else:
+            self.filename_image = 
     def setupUi(self, MainWindow):
-        MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(963, 1036)
+        MainWindow.setObjectName("Count Ya Colonies!")
+        MainWindow.resize(1899, 1036)
         MainWindow.setStyleSheet("")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -128,9 +152,23 @@ class Ui_MainWindow(object):
         font.setPointSize(18)
         self.label_13.setFont(font)
         self.label_13.setObjectName("label_13")
+
+
+
+
+        self.graphicsView_2 = PlotWidget(self.centralwidget)
+        self.graphicsView_2.setGeometry(QtCore.QRect(960, 20, 921, 791))
+        self.graphicsView_2.setObjectName("graphicsView_2")
+        self.label_14 = QtWidgets.QLabel(self.centralwidget)
+        self.label_14.setGeometry(QtCore.QRect(960, 0, 111, 16))
+        font = QtGui.QFont()
+        font.setPointSize(18)
+        self.label_14.setFont(font)
+        self.label_14.setStyleSheet("color: rgb(255, 255, 255);")
+        self.label_14.setObjectName("label_14")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 963, 22))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1899, 22))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -142,15 +180,20 @@ class Ui_MainWindow(object):
 
 
 
-
         #remove x and y axis
         self.graphicsView.getPlotItem().hideAxis('bottom')
         self.graphicsView.getPlotItem().hideAxis('left')
         self.graphicsView.setAspectLocked(True)
 
+        self.graphicsView_2.getPlotItem().hideAxis('bottom')
+        self.graphicsView_2.getPlotItem().hideAxis('left')
+        self.graphicsView_2.setAspectLocked(True)
+        self.graphicsView_2.setYLink(self.graphicsView)
+        self.graphicsView_2.setXLink(self.graphicsView)
+
 
         # Initialize 
-        self.lineEdit.setText('7')
+        self.lineEdit.setText('6')
         self.lineEdit_2.setText('6')
         self.lineEdit_3.setText('42')
         self.pushButton.setEnabled(False)
@@ -159,6 +202,16 @@ class Ui_MainWindow(object):
         self.mouse_x = []
         self.mouse_y = []
 
+        # Img
+        im = Image.open(self.filename_image)
+        scale_value=50
+        im = ImageEnhance.Contrast(im).enhance(scale_value)
+
+        pixvals = np.asarray(im)
+
+        im = pg.ImageItem(pixvals)
+        im.setZValue(-100)
+        self.graphicsView_2.addItem(im)
 
         # Set up data
         data   = pd.read_pickle(self.paths_to_data[self.numberpath])
@@ -191,6 +244,9 @@ class Ui_MainWindow(object):
         self.shortcutD = QtWidgets.QShortcut(QtGui.QKeySequence('D'), MainWindow)
         self.shortcutA.activated.connect(lambda shortcut_key=self.shortcutA.key().toString(): self.displayKeysA(shortcut_key))
         self.shortcutD.activated.connect(lambda shortcut_key=self.shortcutD.key().toString(): self.displayKeysD(shortcut_key))
+
+        
+
 
 
     def retranslateUi(self, MainWindow):
@@ -240,6 +296,23 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         self.label_13.setText(_translate("MainWindow", self.filename))
 
+        self.filename_image = paths_to_images + self.filename.split('.')[0] + ".tif"#.jpeg"
+
+        # Im
+        im = Image.open(self.filename_image)
+        # im.mode = 'I'
+        # im = im.point(lambda i:i*(1./256)).convert('L')
+        pixvals = np.asarray(im)
+        minval = np.percentile(pixvals, 2)
+        maxval = np.percentile(pixvals, 90)
+        pixvals = np.clip(pixvals, minval, maxval)
+        pixvals = ((pixvals - minval) / (maxval - minval)) * 255
+        
+        im = pg.ImageItem(pixvals)
+        im.setZValue(-100)
+        self.graphicsView_2.clear()
+        self.graphicsView_2.addItem(im)
+
 
     def Next(self):
 
@@ -262,6 +335,30 @@ class Ui_MainWindow(object):
         self.label_13.setText(_translate("MainWindow", self.filename))
 
 
+
+
+        self.filename_image = paths_to_images + self.filename.split('.')[0] + ".tif"#.jpeg"
+
+        # Im
+        im = Image.open(self.filename_image)
+        # im.mode = 'I'
+        # im = im.point(lambda i:i*(1./256)).convert('L')
+        pixvals = np.asarray(im)
+        minval = np.percentile(pixvals, 2)
+        maxval = np.percentile(pixvals, 90)
+        pixvals = np.clip(pixvals, minval, maxval)
+        pixvals = ((pixvals - minval) / (maxval - minval)) * 255
+        
+        im = pg.ImageItem(pixvals)
+        im.setZValue(-100)
+        self.graphicsView_2.clear()
+
+        self.graphicsView_2.addItem(im)
+
+
+
+
+
     #---------- Step1 ------------
 
     def Refresh(self):
@@ -269,26 +366,30 @@ class Ui_MainWindow(object):
         self.graphicsView.clear()
         self.graphicsView.plot(self.X[:,0], self.X[:,1],pen=None, symbol='o', symbolPen=None, symbolSize=5)
 
-        nearest_n  = int(self.lineEdit.text())#7 # how many neighboring cells to calculate distance
-        threshhold = 1*10**int(self.lineEdit_2.text())#6 # squared sum ucledean distance
-
-        points = self.X
-        distances = sp.spatial.distance.cdist(points,points)
-
-        # An element is not its own nearest neighbor
-        np.fill_diagonal(distances, np.inf)
-
-        # Find the index of each element's nearest neighbor
-        mins = distances.argmin(0)
-
-        idx = np.argpartition(distances, kth=nearest_n, axis=-1)
-        distances_hold = np.take_along_axis(distances, idx, axis=-1)
-        distances_hold = distances_hold[:,:nearest_n]
-        dense_points   = points[np.sum(distances_hold**2, axis=1)<threshhold]
-
+        radius  = float(self.lineEdit.text())#7 # how many neighboring cells to calculate distance
+        cells_in_circle_thresh = int(self.lineEdit_2.text())#6 # squared sum ucledean distance
         
-        self.X_clean = dense_points
+        x_ = self.X[:,0]
+        y_ = self.X[:,1]
+        cells_in_circle = []
+        passed_thresh = []
+        self.X_clean = []
+        self.Y_clean = []
+
+        for i in range(len(x_)):
+            x_0 = self.X[i,0]
+            y_0 = self.X[i,1]
+            x, y = np.where((x_[:,np.newaxis] - x_0)**2 + (y_ - y_0)**2 <= radius**2)
+
+            if cells_in_circle_thresh <= len(x):
+                passed_thresh.append(i)
+                cells_in_circle.append(len(x))
+                self.X_clean.append(x_0)
+                self.Y_clean.append(y_0)
         self.graphicsView.plot(self.X_clean[:,0], self.X_clean[:,1],pen=None, symbol='o', symbolPen='g', symbolSize=5)
+
+
+
 
 
     def Clean(self):
@@ -403,7 +504,6 @@ class Ui_MainWindow(object):
         d = {'x':self.X[:,0],'y':self.X[:,1],'color':self.labels,'colonyID':self.colonyID}
         data_save = pd.DataFrame(data=d)
         data_save.to_pickle(self.output_path + "clean_" + self.filename)
-
 
 
 
