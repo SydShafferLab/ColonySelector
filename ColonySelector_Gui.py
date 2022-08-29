@@ -4,7 +4,7 @@
 
 
 # import pyqtgraph.examples
-  
+
 # # run this examples
 # pyqtgraph.examples.run()
 
@@ -24,24 +24,25 @@ from pyqtgraph import PlotWidget
 from sklearn import mixture
 from matplotlib.path import Path
 from PIL import Image , ImageEnhance
-Image.MAX_IMAGE_PIXELS = 1000000000 
+Image.MAX_IMAGE_PIXELS = 1000000000
 
 #__________________________________________________________________________
 #_________________________User defined Paths:______________________________
-# 
-# path_to_data = paths to the .pkl files created in Step0 and 
+#
+# path_to_data = paths to the .pkl files created in Step0 and
 #                the * makes it so all .pkl files in the folder are grabed.
 #
 # output_path = path to output folder.
 
-paths_to_data = "/Users/raul/Documents/GitHub/ColonySelector/test_data/*.pkl"
-
-output_path = "/Users/raul/Documents/GitHub/ColonySelector/example_output/"
-
-# image and name of pkl file must be the same
-paths_to_images = "/Users/raul/Documents/GitHub/ColonySelector/test_data/"
-
+paths_to_data = "/Volumes/GoogleDrive-102645418911673044360/My Drive/Guillaume_Shared/ModulatingPrimedCells/RawData/Microscopy/20220824_PI3KiTimingR6/DTbreakNothing_DTbreakPI3Ki/*.pkl"
+#
+output_path = "/Volumes/GoogleDrive-102645418911673044360/My Drive/Guillaume_Shared/ModulatingPrimedCells/RawData/Microscopy/20220824_PI3KiTimingR6/DTbreakNothing_DTbreakPI3Ki/"
+#
+# # image and name of pkl file must be the same
+paths_to_images = "/Volumes/GoogleDrive-102645418911673044360/My Drive/Guillaume_Shared/ModulatingPrimedCells/RawData/Microscopy/20220824_PI3KiTimingR6/DTbreakNothing_DTbreakPI3Ki/"
+#
 is_tif_or_jpg = ".jpg" # is the image in ".jpg" or ".tif" format
+
 
 
 
@@ -53,17 +54,16 @@ is_tif_or_jpg = ".jpg" # is the image in ".jpg" or ".tif" format
 class Ui_MainWindow(object):
 
     def __init__(self, paths_to_data, output_path):
-        
+
         self.paths_to_data = glob.glob(paths_to_data)
 
         self.numberpath = 0
         self.output_path = output_path
         self.filename = self.paths_to_data[self.numberpath].split('/')[-1]
 
-        if paths_to_images != "":
-            self.filename_image = paths_to_images + self.filename.split('.')[0] + is_tif_or_jpg#tif"
-        else:
-            self.filename_image = 
+
+        self.filename_image = paths_to_images + self.filename.split('.')[0] + is_tif_or_jpg#tif"
+
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("Count Ya Colonies!")
         MainWindow.resize(1899, 1036)
@@ -192,7 +192,7 @@ class Ui_MainWindow(object):
         self.graphicsView_2.setXLink(self.graphicsView)
 
 
-        # Initialize 
+        # Initialize
         self.lineEdit.setText('6')
         self.lineEdit_2.setText('6')
         self.lineEdit_3.setText('42')
@@ -204,6 +204,8 @@ class Ui_MainWindow(object):
 
         # Img
         im = Image.open(self.filename_image)
+        im = im.rotate(270)
+
         scale_value=50
         im = ImageEnhance.Contrast(im).enhance(scale_value)
 
@@ -220,8 +222,8 @@ class Ui_MainWindow(object):
         self.colonyID = [0]*len(self.X[:,0])
 
         # First plot
-        self.PLOT = self.graphicsView.plot(self.X[:,0], self.X[:,1],pen=None, symbol='o', symbolPen=None, symbolSize=5)
-        
+        self.PLOT = self.graphicsView.plot(self.X[:,0], self.X[:,1] - np.min(self.X[:,1]),pen=None, symbol='o', symbolPen=None, symbolSize=5)
+
         # Use this plot for all the x y coord
         self.proxy = pg.SignalProxy(self.PLOT.scene().sigMouseMoved, rateLimit=60, slot=self.mouse_position)
 
@@ -229,7 +231,7 @@ class Ui_MainWindow(object):
         # User actions
         self.pushButton.clicked.connect(lambda:self.Back())
         self.pushButton_2.clicked.connect(lambda:self.Next())
-        
+
         self.pushButton_3.clicked.connect(lambda:self.Refresh())
         self.pushButton_4.clicked.connect(lambda:self.Clean())
 
@@ -245,7 +247,7 @@ class Ui_MainWindow(object):
         self.shortcutA.activated.connect(lambda shortcut_key=self.shortcutA.key().toString(): self.displayKeysA(shortcut_key))
         self.shortcutD.activated.connect(lambda shortcut_key=self.shortcutD.key().toString(): self.displayKeysD(shortcut_key))
 
-        
+
 
 
 
@@ -281,7 +283,7 @@ class Ui_MainWindow(object):
 
         if self.numberpath != 0:
             self.pushButton_2.setEnabled(True)
-            
+
             # Set up previous data
             self.numberpath = self.numberpath - 1
             data   = pd.read_pickle(self.paths_to_data[self.numberpath])
@@ -296,7 +298,7 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         self.label_13.setText(_translate("MainWindow", self.filename))
 
-        self.filename_image = paths_to_images + self.filename.split('.')[0] + ".tif"#.jpeg"
+        self.filename_image = paths_to_images + self.filename.split('.')[0] + is_tif_or_jpg#tif"
 
         # Im
         im = Image.open(self.filename_image)
@@ -307,7 +309,7 @@ class Ui_MainWindow(object):
         maxval = np.percentile(pixvals, 90)
         pixvals = np.clip(pixvals, minval, maxval)
         pixvals = ((pixvals - minval) / (maxval - minval)) * 255
-        
+
         im = pg.ImageItem(pixvals)
         im.setZValue(-100)
         self.graphicsView_2.clear()
@@ -337,7 +339,7 @@ class Ui_MainWindow(object):
 
 
 
-        self.filename_image = paths_to_images + self.filename.split('.')[0] + ".tif"#.jpeg"
+        self.filename_image = paths_to_images + self.filename.split('.')[0] + is_tif_or_jpg#tif"
 
         # Im
         im = Image.open(self.filename_image)
@@ -348,7 +350,7 @@ class Ui_MainWindow(object):
         maxval = np.percentile(pixvals, 90)
         pixvals = np.clip(pixvals, minval, maxval)
         pixvals = ((pixvals - minval) / (maxval - minval)) * 255
-        
+
         im = pg.ImageItem(pixvals)
         im.setZValue(-100)
         self.graphicsView_2.clear()
@@ -368,7 +370,7 @@ class Ui_MainWindow(object):
 
         radius  = float(self.lineEdit.text())#7 # how many neighboring cells to calculate distance
         cells_in_circle_thresh = int(self.lineEdit_2.text())#6 # squared sum ucledean distance
-        
+
         x_ = self.X[:,0]
         y_ = self.X[:,1]
         cells_in_circle = []
@@ -471,8 +473,8 @@ class Ui_MainWindow(object):
 
     def define_colonies(self):
 
-        points = np.vstack((self.X[:,0], self.X[:,1])).T 
-        lasso  = np.vstack((self.mouse_x, self.mouse_y)).T 
+        points = np.vstack((self.X[:,0], self.X[:,1])).T
+        lasso  = np.vstack((self.mouse_x, self.mouse_y)).T
         p = Path(lasso) # make a polygon
         grid = p.contains_points(points)
 
@@ -515,5 +517,3 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
-
-
