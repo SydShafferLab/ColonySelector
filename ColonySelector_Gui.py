@@ -5,7 +5,7 @@
 
 # import pyqtgraph.examples
 
-# # run this examples
+# # # run this examples
 # pyqtgraph.examples.run()
 
 import os
@@ -23,7 +23,7 @@ from pyqtgraph import PlotWidget
 
 from sklearn import mixture
 from matplotlib.path import Path
-from PIL import Image , ImageEnhance
+from PIL import Image , ImageEnhance, ImageOps
 Image.MAX_IMAGE_PIXELS = 1000000000
 
 #__________________________________________________________________________
@@ -34,13 +34,13 @@ Image.MAX_IMAGE_PIXELS = 1000000000
 #
 # output_path = path to output folder.
 
-paths_to_data = "/Volumes/GoogleDrive-102645418911673044360/My Drive/Guillaume_Shared/ModulatingPrimedCells/RawData/Microscopy/20220824_PI3KiTimingR6/DTbreakNothing_DTbreakPI3Ki/*.pkl"
-#
-output_path = "/Volumes/GoogleDrive-102645418911673044360/My Drive/Guillaume_Shared/ModulatingPrimedCells/RawData/Microscopy/20220824_PI3KiTimingR6/DTbreakNothing_DTbreakPI3Ki/"
-#
-# # image and name of pkl file must be the same
-paths_to_images = "/Volumes/GoogleDrive-102645418911673044360/My Drive/Guillaume_Shared/ModulatingPrimedCells/RawData/Microscopy/20220824_PI3KiTimingR6/DTbreakNothing_DTbreakPI3Ki/"
-#
+paths_to_data = "/Users/raul/Documents/GitHub/ColonySelector/test_data/*.pkl"
+
+output_path = "/Users/raul/Documents/GitHub/ColonySelector/example_output/"
+
+# image and name of pkl file must be the same
+paths_to_images = "/Users/raul/Documents/GitHub/ColonySelector/test_data/"
+
 is_tif_or_jpg = ".jpg" # is the image in ".jpg" or ".tif" format
 
 
@@ -154,6 +154,30 @@ class Ui_MainWindow(object):
         self.label_13.setObjectName("label_13")
 
 
+        self.label_Im = QtWidgets.QLabel(self.centralwidget)
+        self.label_Im.setGeometry(QtCore.QRect(960, 820, 191, 30))
+        font = QtGui.QFont()
+        font.setPointSize(18)
+        self.label_Im.setFont(font)
+
+        self.Flipim = QtWidgets.QPushButton(self.centralwidget)
+        self.Flipim.setGeometry(QtCore.QRect(960, 860, 101, 31))
+        self.Flipim.setObjectName("Flipim")
+
+        self.txt_Flipim = QtWidgets.QLabel(self.centralwidget)
+        self.txt_Flipim.setGeometry(QtCore.QRect(1090, 860, 550, 24))
+        self.txt_Flipim.setObjectName("txt_Flipim")
+
+        self.txt_im = QtWidgets.QLabel(self.centralwidget)
+        self.txt_im.setGeometry(QtCore.QRect(960, 900, 1000, 100))
+        self.txt_im.setObjectName("txt_im")
+
+
+        self.txt_im2 = QtWidgets.QLabel(self.centralwidget)
+        self.txt_im2.setGeometry(QtCore.QRect(960, 920, 1000, 100))
+        self.txt_im2.setObjectName("txt_im2")
+
+
 
 
         self.graphicsView_2 = PlotWidget(self.centralwidget)
@@ -190,6 +214,9 @@ class Ui_MainWindow(object):
         self.graphicsView_2.setAspectLocked(True)
         self.graphicsView_2.setYLink(self.graphicsView)
         self.graphicsView_2.setXLink(self.graphicsView)
+        # self.graphicsView.setXLink(self.graphicsView_2)
+        #  self.graphicsView.setXLink(self.graphicsView_2)
+        # self.graphicsView_2.setMouseEnabled(x=False, y=True)
 
 
         # Initialize
@@ -204,16 +231,35 @@ class Ui_MainWindow(object):
 
         # Img
         im = Image.open(self.filename_image)
-        im = im.rotate(270)
 
-        scale_value=50
-        im = ImageEnhance.Contrast(im).enhance(scale_value)
+        # differnt way to contrast image
+        #scale_value=50
+        #im = ImageEnhance.Contrast(im).enhance(scale_value)
+        self.im = im
+
 
         pixvals = np.asarray(im)
+        minval = np.percentile(pixvals, 2)
+        maxval = np.percentile(pixvals, 90)
+        pixvals = np.clip(pixvals, minval, maxval)
+        pixvals = ((pixvals - minval) / (maxval - minval)) * 255
+        img_x,img_y = pixvals.shape
 
         im = pg.ImageItem(pixvals)
         im.setZValue(-100)
         self.graphicsView_2.addItem(im)
+        
+        
+
+        r1 = pg.ROI([0,0], [img_x,img_y], resizable=False, removable=True)
+        r1.addRotateHandle([1,0], [0.5, 0.5])
+        r1.addRotateHandle([0,1], [0.5, 0.5])
+        im.setParentItem(r1)
+        self.graphicsView_2.addItem(r1)
+        self.r1 = r1
+        self.flip_num = 0
+        self.flip_next = 0
+        self.new_color_tracker = 0 
 
         # Set up data
         data   = pd.read_pickle(self.paths_to_data[self.numberpath])
@@ -247,7 +293,52 @@ class Ui_MainWindow(object):
         self.shortcutA.activated.connect(lambda shortcut_key=self.shortcutA.key().toString(): self.displayKeysA(shortcut_key))
         self.shortcutD.activated.connect(lambda shortcut_key=self.shortcutD.key().toString(): self.displayKeysD(shortcut_key))
 
+        # Flip image
+        self.Flipim.clicked.connect(lambda:self.fun_flip())
 
+
+    def fun_flip(self):
+
+        
+        if self.flip_next != 1:
+            self.flip_num = self.flip_num + 1
+
+        if np.mod(self.flip_num,2) == 1:
+            self.graphicsView_2.clear()
+
+            self.im = ImageOps.flip(self.im)
+            pixvals = np.asarray(self.im )
+            minval = np.percentile(pixvals, 2)
+            maxval = np.percentile(pixvals, 90)
+            pixvals = np.clip(pixvals, minval, maxval)
+            pixvals = ((pixvals - minval) / (maxval - minval)) * 255
+            img_x,img_y = pixvals.shape
+            im = pg.ImageItem(pixvals)
+
+
+            im.setZValue(-100)
+
+
+            self.graphicsView_2.addItem(im)
+            im.setParentItem(self.r1)
+
+        else:
+            self.graphicsView_2.clear()
+
+            pixvals = np.asarray(self.im)
+            minval = np.percentile(pixvals, 2)
+            maxval = np.percentile(pixvals, 90)
+            pixvals = np.clip(pixvals, minval, maxval)
+            pixvals = ((pixvals - minval) / (maxval - minval)) * 255
+            img_x,img_y = pixvals.shape
+            im = pg.ImageItem(pixvals)
+
+            im.setZValue(-100)
+
+            self.graphicsView_2.addItem(im)
+            im.setParentItem(self.r1)
+
+        self.graphicsView_2.addItem(self.r1)
 
 
 
@@ -275,6 +366,13 @@ class Ui_MainWindow(object):
         self.label_12.setText(_translate("MainWindow", "Hotkeys:    Shift = Circle colony        A = Accept colony        D = Delete"))
         self.label_13.setText(_translate("MainWindow", self.filename))
 
+        self.Flipim.setText(_translate("MainWindow", "Flip image"))
+        self.label_Im.setText(_translate("MainWindow", "Orient image:"))
+        self.txt_Flipim.setText(_translate("MainWindow", "Flip the image by taking the ~mirror image~"))
+        self.txt_im.setText(_translate("MainWindow", "How to align the data and image? Hover over the image and click to drag it around."))
+        self.txt_im2.setText(_translate("MainWindow", "You can also rotate the image by clicking and draging the top left or bottom right corners"))
+
+
 
 
     #---------- Back/Next ------------
@@ -301,19 +399,15 @@ class Ui_MainWindow(object):
         self.filename_image = paths_to_images + self.filename.split('.')[0] + is_tif_or_jpg#tif"
 
         # Im
-        im = Image.open(self.filename_image)
-        # im.mode = 'I'
-        # im = im.point(lambda i:i*(1./256)).convert('L')
-        pixvals = np.asarray(im)
-        minval = np.percentile(pixvals, 2)
-        maxval = np.percentile(pixvals, 90)
-        pixvals = np.clip(pixvals, minval, maxval)
-        pixvals = ((pixvals - minval) / (maxval - minval)) * 255
+        self.im = Image.open(self.filename_image)
 
-        im = pg.ImageItem(pixvals)
-        im.setZValue(-100)
-        self.graphicsView_2.clear()
-        self.graphicsView_2.addItem(im)
+        tr = QtGui.QTransform()  # prepare ImageItem transformation:
+        tr.rotate(0)       # Rotates the coordinate system counterclockwise by the given angle
+        tr.translate(0, 0) # move 3x3 image to locate center at axis origin
+
+        self.flip_next = 1
+        self.fun_flip()
+        self.flip_next = 0
 
 
     def Next(self):
@@ -342,21 +436,13 @@ class Ui_MainWindow(object):
         self.filename_image = paths_to_images + self.filename.split('.')[0] + is_tif_or_jpg#tif"
 
         # Im
-        im = Image.open(self.filename_image)
-        # im.mode = 'I'
-        # im = im.point(lambda i:i*(1./256)).convert('L')
-        pixvals = np.asarray(im)
-        minval = np.percentile(pixvals, 2)
-        maxval = np.percentile(pixvals, 90)
-        pixvals = np.clip(pixvals, minval, maxval)
-        pixvals = ((pixvals - minval) / (maxval - minval)) * 255
+        self.im = Image.open(self.filename_image)
 
-        im = pg.ImageItem(pixvals)
-        im.setZValue(-100)
-        self.graphicsView_2.clear()
 
-        self.graphicsView_2.addItem(im)
 
+        self.flip_next = 1
+        self.fun_flip()
+        self.flip_next = 0
 
 
 
@@ -462,7 +548,6 @@ class Ui_MainWindow(object):
             self.mouse_y.append(mousePoint.y())
             self.graphicsView.plot(self.mouse_x, self.mouse_y)
 
-
     def displayKeysA(self,mapping):
         self.keep_points = 'Good'
         self.define_colonies()
@@ -479,7 +564,13 @@ class Ui_MainWindow(object):
         grid = p.contains_points(points)
 
         #random color for new label
-        new_color = pg.mkColor(random.choice(['w','#E6DAA6','#06C2AC','#6E750E','#FF7F50','#054907','#380282','#C79FEF','#FF4500','#069AF3','#ADD8E6','#90EE90']))
+        #new_color = pg.mkColor(random.choice(['w','#E6DAA6','#06C2AC','#6E750E','#FF7F50','#054907','#380282','#C79FEF','#FF4500','#069AF3','#ADD8E6','#90EE90']))
+        
+        handpicked_colors = ['w','#E6DAA6','#06C2AC','#6E750E','#FF7F50','#054907','#380282','#C79FEF','#FF4500','#069AF3','#ADD8E6','#90EE90']
+
+        self.new_color_tracker = self.new_color_tracker + 1
+        self.new_color_tracker = np.mod(self.new_color_tracker,len(handpicked_colors))
+        new_color = pg.mkColor(handpicked_colors[self.new_color_tracker])
 
         newID = 1 + np.max(self.colonyID)
 
@@ -517,3 +608,27 @@ if __name__ == "__main__":
     ui.setupUi(MainWindow)
     MainWindow.show()
     sys.exit(app.exec_())
+
+
+
+
+#Extra code
+
+# tr = QtGui.QTransform()  # prepare ImageItem transformation:
+# tr.rotate(np.degrees(self.r1.angle()))       # Rotates the coordinate system counterclockwise by the given angle
+# tr.translate(int(self.r1.pos()[0]), int(self.r1.pos()[1])) # move 3x3 image to locate center at axis origin
+# im.setTransform(tr)
+
+
+
+# pixvals = np.asarray(im)
+# minval = np.percentile(pixvals, 2)
+# maxval = np.percentile(pixvals, 90)
+# pixvals = np.clip(pixvals, minval, maxval)
+# pixvals = ((pixvals - minval) / (maxval - minval)) * 255
+
+# im = pg.ImageItem(pixvals)
+# im.setZValue(-100)
+# self.graphicsView_2.clear()
+
+# self.graphicsView_2.addItem(im)
