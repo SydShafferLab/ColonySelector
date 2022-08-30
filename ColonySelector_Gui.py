@@ -1,12 +1,21 @@
-# pyuic5 -x mainwindow.ui -o updated_gui_Final.py
+# Script for ColonySelectorGui
+# Go to https://github.com/SydShafferLab/ColonySelector/wiki for more details.
+
+# Variables:
+
+#   paths_to_data = path/to/pkl_folder/*.pkl  #XY columns 
+
+#     output_path = path/to/output_folder/ 
+
+
+# paths_to_images = "path/to/images/"  #images have to be .jpg or .tif
+#                   image and name of pkl file must be the same!
+#                   "" leave empty if you don't want to use images.
+
+#   is_tif_or_jpg = ".jpg" or ".tif" # is the image in ".jpg" or ".tif" format
 
 
 
-
-# import pyqtgraph.examples
-
-# # # run this examples
-# pyqtgraph.examples.run()
 
 import os
 import glob
@@ -28,20 +37,31 @@ Image.MAX_IMAGE_PIXELS = 1000000000
 
 #__________________________________________________________________________
 #_________________________User defined Paths:______________________________
-#
-# path_to_data = paths to the .pkl files created in Step0 and
-#                the * makes it so all .pkl files in the folder are grabed.
-#
-# output_path = path to output folder.
 
 paths_to_data = "/Users/raul/Documents/GitHub/ColonySelector/test_data/*.pkl"
 
 output_path = "/Users/raul/Documents/GitHub/ColonySelector/example_output/"
 
-# image and name of pkl file must be the same
-paths_to_images = "/Users/raul/Documents/GitHub/ColonySelector/test_data/"
+# image and name of pkl file must be the same or leave empty ""
+paths_to_images = "/Users/raul/Documents/GitHub/ColonySelector/test_data/" # 
 
 is_tif_or_jpg = ".jpg" # is the image in ".jpg" or ".tif" format
+
+
+
+
+#__________________________________________________________________________
+#_________________Checking whether folder/directory exists_________________
+
+
+#define funtion to determine if folder exist
+def does_folder_exist(path_to_folder):
+    if not os.path.exists(path_to_folder):
+        os.mkdir(path_to_folder)
+    # else:
+    #     raise Exception("folder {} already exists".format(path_to_folder))
+
+does_folder_exist(output_path)
 
 
 
@@ -66,7 +86,11 @@ class Ui_MainWindow(object):
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("Count Ya Colonies!")
-        MainWindow.resize(1899, 1036)
+        if paths_to_images != "":
+            MainWindow.resize(1899, 1036)
+        else:
+            MainWindow.resize(970, 1036)
+
         MainWindow.setStyleSheet("")
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
@@ -152,37 +176,6 @@ class Ui_MainWindow(object):
         font.setPointSize(18)
         self.label_13.setFont(font)
         self.label_13.setObjectName("label_13")
-
-
-        self.label_Im = QtWidgets.QLabel(self.centralwidget)
-        self.label_Im.setGeometry(QtCore.QRect(960, 820, 191, 30))
-        font = QtGui.QFont()
-        font.setPointSize(18)
-        self.label_Im.setFont(font)
-
-        self.Flipim = QtWidgets.QPushButton(self.centralwidget)
-        self.Flipim.setGeometry(QtCore.QRect(960, 860, 101, 31))
-        self.Flipim.setObjectName("Flipim")
-
-        self.txt_Flipim = QtWidgets.QLabel(self.centralwidget)
-        self.txt_Flipim.setGeometry(QtCore.QRect(1090, 860, 550, 24))
-        self.txt_Flipim.setObjectName("txt_Flipim")
-
-        self.txt_im = QtWidgets.QLabel(self.centralwidget)
-        self.txt_im.setGeometry(QtCore.QRect(960, 900, 1000, 100))
-        self.txt_im.setObjectName("txt_im")
-
-
-        self.txt_im2 = QtWidgets.QLabel(self.centralwidget)
-        self.txt_im2.setGeometry(QtCore.QRect(960, 920, 1000, 100))
-        self.txt_im2.setObjectName("txt_im2")
-
-
-
-
-        self.graphicsView_2 = PlotWidget(self.centralwidget)
-        self.graphicsView_2.setGeometry(QtCore.QRect(960, 20, 921, 791))
-        self.graphicsView_2.setObjectName("graphicsView_2")
         self.label_14 = QtWidgets.QLabel(self.centralwidget)
         self.label_14.setGeometry(QtCore.QRect(960, 0, 111, 16))
         font = QtGui.QFont()
@@ -199,6 +192,39 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
 
+        if paths_to_images != "":
+            self.label_Im = QtWidgets.QLabel(self.centralwidget)
+            self.label_Im.setGeometry(QtCore.QRect(960, 820, 191, 30))
+            font = QtGui.QFont()
+            font.setPointSize(18)
+            self.label_Im.setFont(font)
+
+            self.Flipim = QtWidgets.QPushButton(self.centralwidget)
+            self.Flipim.setGeometry(QtCore.QRect(960, 860, 101, 31))
+            self.Flipim.setObjectName("Flipim")
+
+            self.txt_Flipim = QtWidgets.QLabel(self.centralwidget)
+            self.txt_Flipim.setGeometry(QtCore.QRect(1090, 860, 550, 24))
+            self.txt_Flipim.setObjectName("txt_Flipim")
+
+            self.txt_im = QtWidgets.QLabel(self.centralwidget)
+            self.txt_im.setGeometry(QtCore.QRect(960, 900, 1000, 100))
+            self.txt_im.setObjectName("txt_im")
+
+
+            self.txt_im2 = QtWidgets.QLabel(self.centralwidget)
+            self.txt_im2.setGeometry(QtCore.QRect(960, 920, 1000, 100))
+            self.txt_im2.setObjectName("txt_im2")
+
+
+
+
+            self.graphicsView_2 = PlotWidget(self.centralwidget)
+            self.graphicsView_2.setGeometry(QtCore.QRect(960, 20, 921, 791))
+            self.graphicsView_2.setObjectName("graphicsView_2")
+
+
+
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
@@ -208,16 +234,6 @@ class Ui_MainWindow(object):
         self.graphicsView.getPlotItem().hideAxis('bottom')
         self.graphicsView.getPlotItem().hideAxis('left')
         self.graphicsView.setAspectLocked(True)
-
-        self.graphicsView_2.getPlotItem().hideAxis('bottom')
-        self.graphicsView_2.getPlotItem().hideAxis('left')
-        self.graphicsView_2.setAspectLocked(True)
-        self.graphicsView_2.setYLink(self.graphicsView)
-        self.graphicsView_2.setXLink(self.graphicsView)
-        # self.graphicsView.setXLink(self.graphicsView_2)
-        #  self.graphicsView.setXLink(self.graphicsView_2)
-        # self.graphicsView_2.setMouseEnabled(x=False, y=True)
-
 
         # Initialize
         self.lineEdit.setText('6')
@@ -229,36 +245,44 @@ class Ui_MainWindow(object):
         self.mouse_x = []
         self.mouse_y = []
 
-        # Img
-        im = Image.open(self.filename_image)
+        if paths_to_images != "":
+            self.graphicsView_2.getPlotItem().hideAxis('bottom')
+            self.graphicsView_2.getPlotItem().hideAxis('left')
+            self.graphicsView_2.setAspectLocked(True)
+            self.graphicsView_2.setYLink(self.graphicsView)
+            self.graphicsView_2.setXLink(self.graphicsView)
 
-        # differnt way to contrast image
-        #scale_value=50
-        #im = ImageEnhance.Contrast(im).enhance(scale_value)
-        self.im = im
+            # Img
+            im = Image.open(self.filename_image)
+
+            # differnt way to contrast image
+            #scale_value=50
+            #im = ImageEnhance.Contrast(im).enhance(scale_value)
+            self.im = im
 
 
-        pixvals = np.asarray(im)
-        minval = np.percentile(pixvals, 2)
-        maxval = np.percentile(pixvals, 90)
-        pixvals = np.clip(pixvals, minval, maxval)
-        pixvals = ((pixvals - minval) / (maxval - minval)) * 255
-        img_x,img_y = pixvals.shape
+            pixvals = np.asarray(im)
+            minval = np.percentile(pixvals, 2)
+            maxval = np.percentile(pixvals, 90)
+            pixvals = np.clip(pixvals, minval, maxval)
+            pixvals = ((pixvals - minval) / (maxval - minval)) * 255
+            img_x,img_y = pixvals.shape
 
-        im = pg.ImageItem(pixvals)
-        im.setZValue(-100)
-        self.graphicsView_2.addItem(im)
-        
-        
+            im = pg.ImageItem(pixvals)
+            im.setZValue(-100)
+            self.graphicsView_2.addItem(im)
+            
+            
 
-        r1 = pg.ROI([0,0], [img_x,img_y], resizable=False, removable=True)
-        r1.addRotateHandle([1,0], [0.5, 0.5])
-        r1.addRotateHandle([0,1], [0.5, 0.5])
-        im.setParentItem(r1)
-        self.graphicsView_2.addItem(r1)
-        self.r1 = r1
-        self.flip_num = 0
-        self.flip_next = 0
+            r1 = pg.ROI([0,0], [img_x,img_y], resizable=False, removable=True)
+            r1.addRotateHandle([1,0], [0.5, 0.5])
+            r1.addRotateHandle([0,1], [0.5, 0.5])
+            im.setParentItem(r1)
+            self.graphicsView_2.addItem(r1)
+            self.r1 = r1
+            self.flip_num = 0
+            self.flip_next = 0
+
         self.new_color_tracker = 0 
 
         # Set up data
@@ -293,8 +317,9 @@ class Ui_MainWindow(object):
         self.shortcutA.activated.connect(lambda shortcut_key=self.shortcutA.key().toString(): self.displayKeysA(shortcut_key))
         self.shortcutD.activated.connect(lambda shortcut_key=self.shortcutD.key().toString(): self.displayKeysD(shortcut_key))
 
-        # Flip image
-        self.Flipim.clicked.connect(lambda:self.fun_flip())
+        if paths_to_images != "":
+            # Flip image
+            self.Flipim.clicked.connect(lambda:self.fun_flip())
 
 
     def fun_flip(self):
@@ -366,11 +391,12 @@ class Ui_MainWindow(object):
         self.label_12.setText(_translate("MainWindow", "Hotkeys:    Shift = Circle colony        A = Accept colony        D = Delete"))
         self.label_13.setText(_translate("MainWindow", self.filename))
 
-        self.Flipim.setText(_translate("MainWindow", "Flip image"))
-        self.label_Im.setText(_translate("MainWindow", "Orient image:"))
-        self.txt_Flipim.setText(_translate("MainWindow", "Flip the image by taking the ~mirror image~"))
-        self.txt_im.setText(_translate("MainWindow", "How to align the data and image? Hover over the image and click to drag it around."))
-        self.txt_im2.setText(_translate("MainWindow", "You can also rotate the image by clicking and draging the top left or bottom right corners"))
+        if paths_to_images != "":
+            self.Flipim.setText(_translate("MainWindow", "Flip image"))
+            self.label_Im.setText(_translate("MainWindow", "Orient image:"))
+            self.txt_Flipim.setText(_translate("MainWindow", "Flip the image by taking the ~mirror image~"))
+            self.txt_im.setText(_translate("MainWindow", "How to align the data and image? Hover over the image and click to drag it around."))
+            self.txt_im2.setText(_translate("MainWindow", "You can also rotate the image by clicking and draging the top left or bottom right corners"))
 
 
 
@@ -398,16 +424,17 @@ class Ui_MainWindow(object):
 
         self.filename_image = paths_to_images + self.filename.split('.')[0] + is_tif_or_jpg#tif"
 
-        # Im
-        self.im = Image.open(self.filename_image)
+        if paths_to_images != "":
+            # Im
+            self.im = Image.open(self.filename_image)
 
-        tr = QtGui.QTransform()  # prepare ImageItem transformation:
-        tr.rotate(0)       # Rotates the coordinate system counterclockwise by the given angle
-        tr.translate(0, 0) # move 3x3 image to locate center at axis origin
+            tr = QtGui.QTransform()  # prepare ImageItem transformation:
+            tr.rotate(0)       # Rotates the coordinate system counterclockwise by the given angle
+            tr.translate(0, 0) # move 3x3 image to locate center at axis origin
 
-        self.flip_next = 1
-        self.fun_flip()
-        self.flip_next = 0
+            self.flip_next = 1
+            self.fun_flip()
+            self.flip_next = 0
 
 
     def Next(self):
@@ -435,14 +462,15 @@ class Ui_MainWindow(object):
 
         self.filename_image = paths_to_images + self.filename.split('.')[0] + is_tif_or_jpg#tif"
 
-        # Im
-        self.im = Image.open(self.filename_image)
+        if paths_to_images != "":
+            # Im
+            self.im = Image.open(self.filename_image)
 
 
 
-        self.flip_next = 1
-        self.fun_flip()
-        self.flip_next = 0
+            self.flip_next = 1
+            self.fun_flip()
+            self.flip_next = 0
 
 
 
@@ -613,6 +641,10 @@ if __name__ == "__main__":
 
 
 #Extra code
+
+# pyuic5 -x mainwindow.ui -o updated_gui_Final.py
+# import pyqtgraph.examples
+# pyqtgraph.examples.run()
 
 # tr = QtGui.QTransform()  # prepare ImageItem transformation:
 # tr.rotate(np.degrees(self.r1.angle()))       # Rotates the coordinate system counterclockwise by the given angle
