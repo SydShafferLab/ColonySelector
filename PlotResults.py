@@ -13,7 +13,7 @@ paths_to_data = '/Users/raul/Documents/GitHub/ColonySelector/example_output/*.pk
 paths_to_data  = glob.glob(paths_to_data)
 
 #Name of samples (extract from file name)
-names = ["clean_test_data1.pkl","clean_test_data2.pkl"]
+names = ["clean_test_data1.pkl","clean_test_data2.pkl","clean_20220718_140526_096__PlateRosa_Well1_ChannelDAPI_Seq0000.pkl"]
 
 
 #Extract the data

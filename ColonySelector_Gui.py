@@ -26,6 +26,8 @@ import random
 
 import scipy as sp
 import scipy.spatial
+from sklearn.cluster import DBSCAN
+from scipy.spatial.distance import pdist
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from pyqtgraph import PlotWidget
@@ -43,7 +45,7 @@ paths_to_data = "/Users/raul/Documents/GitHub/ColonySelector/test_data/*.pkl"
 output_path = "/Users/raul/Documents/GitHub/ColonySelector/example_output/"
 
 # image and name of pkl file must be the same or leave empty ""
-paths_to_images = "/Users/raul/Documents/GitHub/ColonySelector/test_data/" # 
+paths_to_images = ""#"/Users/raul/Documents/GitHub/ColonySelector/test_data/" # 
 
 is_tif_or_jpg = ".jpg" # is the image in ".jpg" or ".tif" format
 
@@ -104,7 +106,7 @@ class Ui_MainWindow(object):
         self.graphicsView.setGeometry(QtCore.QRect(20, 20, 921, 791))
         self.graphicsView.setObjectName("graphicsView")
         self.label_7 = QtWidgets.QLabel(self.centralwidget)
-        self.label_7.setGeometry(QtCore.QRect(470, 820, 191, 16))
+        self.label_7.setGeometry(QtCore.QRect(550, 820, 191, 16))
         font = QtGui.QFont()
         font.setPointSize(18)
         self.label_7.setFont(font)
@@ -113,16 +115,17 @@ class Ui_MainWindow(object):
         self.pushButton_4.setGeometry(QtCore.QRect(20, 900, 101, 31))
         self.pushButton_4.setObjectName("pushButton_4")
         self.label_2 = QtWidgets.QLabel(self.centralwidget)
-        self.label_2.setGeometry(QtCore.QRect(160, 820, 71, 20))
+        self.label_2.setGeometry(QtCore.QRect(160, 850, 31, 20))
         self.label_2.setObjectName("label_2")
         self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit.setGeometry(QtCore.QRect(160, 850, 71, 24))
+        self.lineEdit.setGeometry(QtCore.QRect(190, 850, 71, 24))
         self.lineEdit.setObjectName("lineEdit")
         self.label_4 = QtWidgets.QLabel(self.centralwidget)
-        self.label_4.setGeometry(QtCore.QRect(250, 820, 141, 20))
+        self.label_4.setGeometry(QtCore.QRect(270, 840, 281, 20))
         self.label_4.setObjectName("label_4")
+
         self.label_3 = QtWidgets.QLabel(self.centralwidget)
-        self.label_3.setGeometry(QtCore.QRect(160, 900, 71, 21))
+        self.label_3.setGeometry(QtCore.QRect(140, 900, 51, 21))
         self.label_3.setObjectName("label_3")
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(20, 820, 111, 16))
@@ -130,59 +133,62 @@ class Ui_MainWindow(object):
         font.setPointSize(18)
         self.label.setFont(font)
         self.label.setObjectName("label")
-        self.label_5 = QtWidgets.QLabel(self.centralwidget)
-        self.label_5.setGeometry(QtCore.QRect(250, 920, 161, 20))
-        self.label_5.setObjectName("label_5")
-        self.label_6 = QtWidgets.QLabel(self.centralwidget)
-        self.label_6.setGeometry(QtCore.QRect(250, 840, 161, 20))
-        self.label_6.setObjectName("label_6")
         self.lineEdit_2 = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit_2.setGeometry(QtCore.QRect(160, 930, 71, 24))
+        self.lineEdit_2.setGeometry(QtCore.QRect(190, 900, 71, 24))
         self.lineEdit_2.setText("")
         self.lineEdit_2.setObjectName("lineEdit_2")
         self.pushButton_3 = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_3.setGeometry(QtCore.QRect(20, 850, 101, 31))
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_6 = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_6.setGeometry(QtCore.QRect(740, 860, 201, 31))
+        self.pushButton_6.setGeometry(QtCore.QRect(840, 850, 101, 31))
         self.pushButton_6.setObjectName("pushButton_6")
         self.pushButton_8 = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_8.setGeometry(QtCore.QRect(840, 910, 101, 31))
+        self.pushButton_8.setGeometry(QtCore.QRect(840, 900, 101, 31))
         self.pushButton_8.setObjectName("pushButton_8")
         self.pushButton_9 = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_9.setGeometry(QtCore.QRect(470, 860, 130, 31))
+        self.pushButton_9.setGeometry(QtCore.QRect(690, 900, 100, 31))
         self.pushButton_9.setObjectName("pushButton_9")
         self.label_8 = QtWidgets.QLabel(self.centralwidget)
-        self.label_8.setGeometry(QtCore.QRect(250, 900, 161, 20))
+        self.label_8.setGeometry(QtCore.QRect(270, 900, 311, 20))
         self.label_8.setObjectName("label_8")
         self.label_9 = QtWidgets.QLabel(self.centralwidget)
-        self.label_9.setGeometry(QtCore.QRect(250, 860, 161, 20))
+        self.label_9.setGeometry(QtCore.QRect(270, 860, 200, 20))
         self.label_9.setObjectName("label_9")
         self.lineEdit_3 = QtWidgets.QLineEdit(self.centralwidget)
-        self.lineEdit_3.setGeometry(QtCore.QRect(600, 860, 81, 24))
+        self.lineEdit_3.setGeometry(QtCore.QRect(700, 850, 81, 24))
         self.lineEdit_3.setObjectName("lineEdit_3")
-        self.label_10 = QtWidgets.QLabel(self.centralwidget)
-        self.label_10.setGeometry(QtCore.QRect(470, 900, 251, 20))
-        self.label_10.setObjectName("label_10")
-        self.label_11 = QtWidgets.QLabel(self.centralwidget)
-        self.label_11.setGeometry(QtCore.QRect(470, 920, 131, 20))
-        self.label_11.setObjectName("label_11")
         self.label_12 = QtWidgets.QLabel(self.centralwidget)
-        self.label_12.setGeometry(QtCore.QRect(250, 970, 441, 20))
+        self.label_12.setGeometry(QtCore.QRect(250, 970, 460, 20))
         self.label_12.setObjectName("label_12")
+        self.label_22 = QtWidgets.QLabel(self.centralwidget)
+        self.label_22.setGeometry(QtCore.QRect(275, 990, 441, 20))
+        self.label_22.setObjectName("label_22")
         self.label_13 = QtWidgets.QLabel(self.centralwidget)
         self.label_13.setGeometry(QtCore.QRect(20, 0, 921, 20))
         font = QtGui.QFont()
         font.setPointSize(18)
         self.label_13.setFont(font)
         self.label_13.setObjectName("label_13")
+
+
+
+
+
+
+
         self.label_14 = QtWidgets.QLabel(self.centralwidget)
         self.label_14.setGeometry(QtCore.QRect(960, 0, 111, 16))
         font = QtGui.QFont()
         font.setPointSize(18)
         self.label_14.setFont(font)
-        self.label_14.setStyleSheet("color: rgb(255, 255, 255);")
         self.label_14.setObjectName("label_14")
+        self.label_15 = QtWidgets.QLabel(self.centralwidget)
+        self.label_15.setGeometry(QtCore.QRect(270, 920, 211, 20))
+        self.label_15.setObjectName("label_15")
+        self.label_10 = QtWidgets.QLabel(self.centralwidget)
+        self.label_10.setGeometry(QtCore.QRect(550, 850, 120, 20))
+        self.label_10.setObjectName("label_17")
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1899, 22))
@@ -193,40 +199,33 @@ class Ui_MainWindow(object):
         MainWindow.setStatusBar(self.statusbar)
 
         if paths_to_images != "":
-            self.label_Im = QtWidgets.QLabel(self.centralwidget)
-            self.label_Im.setGeometry(QtCore.QRect(960, 820, 191, 30))
-            font = QtGui.QFont()
-            font.setPointSize(18)
-            self.label_Im.setFont(font)
-
-            self.Flipim = QtWidgets.QPushButton(self.centralwidget)
-            self.Flipim.setGeometry(QtCore.QRect(960, 860, 101, 31))
-            self.Flipim.setObjectName("Flipim")
-
-            self.txt_Flipim = QtWidgets.QLabel(self.centralwidget)
-            self.txt_Flipim.setGeometry(QtCore.QRect(1090, 860, 550, 24))
-            self.txt_Flipim.setObjectName("txt_Flipim")
-
-            self.txt_im = QtWidgets.QLabel(self.centralwidget)
-            self.txt_im.setGeometry(QtCore.QRect(960, 900, 1000, 100))
-            self.txt_im.setObjectName("txt_im")
-
-
-            self.txt_im2 = QtWidgets.QLabel(self.centralwidget)
-            self.txt_im2.setGeometry(QtCore.QRect(960, 920, 1000, 100))
-            self.txt_im2.setObjectName("txt_im2")
-
-
-
-
             self.graphicsView_2 = PlotWidget(self.centralwidget)
             self.graphicsView_2.setGeometry(QtCore.QRect(960, 20, 921, 791))
             self.graphicsView_2.setObjectName("graphicsView_2")
 
+            self.Flipim = QtWidgets.QPushButton(self.centralwidget)
+            self.Flipim.setGeometry(QtCore.QRect(1010, 850, 91, 31))
+            self.Flipim.setObjectName("Flipim")
+            self.label_11 = QtWidgets.QLabel(self.centralwidget)
+            self.label_11.setGeometry(QtCore.QRect(970, 820, 191, 16))
+            font = QtGui.QFont()
+            font.setPointSize(18)
+            self.label_11.setFont(font)
+            self.label_11.setObjectName("label_11")
+            self.label_6 = QtWidgets.QLabel(self.centralwidget)
+            self.label_6.setGeometry(QtCore.QRect(1120, 850, 281, 20))
+            self.label_6.setObjectName("label_6")
+            self.label_16 = QtWidgets.QLabel(self.centralwidget)
+            self.label_16.setGeometry(QtCore.QRect(1010, 910, 481, 20))
+            self.label_16.setObjectName("label_16")
+            self.label_17 = QtWidgets.QLabel(self.centralwidget)
+            self.label_17.setGeometry(QtCore.QRect(1010, 940, 481, 20))
+            self.label_17.setObjectName("label_17")
 
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
+
 
 
 
@@ -237,10 +236,9 @@ class Ui_MainWindow(object):
 
         # Initialize
         self.lineEdit.setText('6')
-        self.lineEdit_2.setText('6')
-        self.lineEdit_3.setText('42')
+        self.lineEdit_2.setText('2')
+        self.lineEdit_3.setText('40')
         self.pushButton.setEnabled(False)
-        self.z = int(self.lineEdit_3.text())
         self.keep_points = []
         self.mouse_x = []
         self.mouse_y = []
@@ -287,16 +285,27 @@ class Ui_MainWindow(object):
 
         # Set up data
         data   = pd.read_pickle(self.paths_to_data[self.numberpath])
-        self.X = data.to_numpy()
-        self.labels = [0]*len(self.X[:,0])
-        self.colonyID = [0]*len(self.X[:,0])
+
+        if len(data.columns) < 3:
+            self.X = data.to_numpy()
+
+            self.labels = [0]*len(self.X[:,0])
+            self.colonyID = [0]*len(self.X[:,0])
+        else:
+            self.X = data.to_numpy()
+            
+            self.labels = self.X[:,2]
+            self.colonyID = self.X[:,3]
+            self.X = self.X[:,0:2]
 
         # First plot
-        self.PLOT = self.graphicsView.plot(self.X[:,0], self.X[:,1] - np.min(self.X[:,1]),pen=None, symbol='o', symbolPen=None, symbolSize=5)
+        self.PLOT = self.graphicsView.plot(self.X[:,0], self.X[:,1] ,pen=None, symbol='o', symbolPen=None, symbolSize=5)
 
         # Use this plot for all the x y coord
         self.proxy = pg.SignalProxy(self.PLOT.scene().sigMouseMoved, rateLimit=60, slot=self.mouse_position)
 
+        # determine distance 
+        self.lineEdit.setText(str(np.floor(np.mean(pdist(self.X, 'euclid'))/100 ) ) )
 
         # User actions
         self.pushButton.clicked.connect(lambda:self.Back())
@@ -316,6 +325,12 @@ class Ui_MainWindow(object):
         self.shortcutD = QtWidgets.QShortcut(QtGui.QKeySequence('D'), MainWindow)
         self.shortcutA.activated.connect(lambda shortcut_key=self.shortcutA.key().toString(): self.displayKeysA(shortcut_key))
         self.shortcutD.activated.connect(lambda shortcut_key=self.shortcutD.key().toString(): self.displayKeysD(shortcut_key))
+
+        self.shortcutW = QtWidgets.QShortcut(QtGui.QKeySequence('W'), MainWindow)
+        self.shortcutR = QtWidgets.QShortcut(QtGui.QKeySequence('R'), MainWindow)
+        self.shortcutW.activated.connect(lambda shortcut_key=self.shortcutA.key().toString(): self.displayKeysW(shortcut_key))
+        self.shortcutR.activated.connect(lambda shortcut_key=self.shortcutD.key().toString(): self.displayKeysR(shortcut_key))
+
 
         if paths_to_images != "":
             # Flip image
@@ -374,29 +389,30 @@ class Ui_MainWindow(object):
         self.pushButton_2.setText(_translate("MainWindow", "Next"))
         self.label_7.setText(_translate("MainWindow", "Step 2: Cluster colonies"))
         self.pushButton_4.setText(_translate("MainWindow", "Clean"))
-        self.label_2.setText(_translate("MainWindow", "Neighbors:"))
-        self.label_4.setText(_translate("MainWindow", "How many neighboring"))
-        self.label_3.setText(_translate("MainWindow", "Magnitude:"))
+        self.label_2.setText(_translate("MainWindow", "eps:"))
+        self.label_4.setText(_translate("MainWindow", "Maximum distance between"))
+        self.label_3.setText(_translate("MainWindow", "weight:"))
         self.label.setText(_translate("MainWindow", "Step 1: Clean"))
-        self.label_5.setText(_translate("MainWindow", "(orders of magnitude)"))
-        self.label_6.setText(_translate("MainWindow", "cells to calculate the "))
         self.pushButton_3.setText(_translate("MainWindow", "Plot"))
-        self.pushButton_6.setText(_translate("MainWindow", "Plot predicted colonies"))
+        self.pushButton_6.setText(_translate("MainWindow", "Plot colonies"))
         self.pushButton_8.setText(_translate("MainWindow", "Save"))
-        self.pushButton_9.setText(_translate("MainWindow", "Estimate colonies"))
-        self.label_8.setText(_translate("MainWindow", "Threshold for the distance"))
-        self.label_9.setText(_translate("MainWindow", "distance "))
-        self.label_10.setText(_translate("MainWindow", "Automatically estimate colonies or "))
-        self.label_11.setText(_translate("MainWindow", "write your own guess"))
-        self.label_12.setText(_translate("MainWindow", "Hotkeys:    Shift = Circle colony        A = Accept colony        D = Delete"))
+        self.pushButton_9.setText(_translate("MainWindow", "Predict #"))
+        self.label_8.setText(_translate("MainWindow", "The number of points in"))
+        self.label_9.setText(_translate("MainWindow", "two samples (euclidean distance)"))
+        self.label_12.setText(_translate("MainWindow", "Hotkeys: Step 1    Shift = Circle colony        W = keep                 R = Remove"))
+        self.label_22.setText(_translate("MainWindow", "         Step 2    Shift = Circle colony        A = Accept colony        D = Delete"))
+        self.label_13.setText(_translate("MainWindow", "File name"))
+        self.label_15.setText(_translate("MainWindow", "an area (includes tho point itself)"))
+        self.label_10.setText(_translate("MainWindow", "Numb of colonies:"))
         self.label_13.setText(_translate("MainWindow", self.filename))
 
         if paths_to_images != "":
+            self.label_14.setText(_translate("MainWindow", "Image"))
             self.Flipim.setText(_translate("MainWindow", "Flip image"))
-            self.label_Im.setText(_translate("MainWindow", "Orient image:"))
-            self.txt_Flipim.setText(_translate("MainWindow", "Flip the image by taking the ~mirror image~"))
-            self.txt_im.setText(_translate("MainWindow", "How to align the data and image? Hover over the image and click to drag it around."))
-            self.txt_im2.setText(_translate("MainWindow", "You can also rotate the image by clicking and draging the top left or bottom right corners"))
+            self.label_11.setText(_translate("MainWindow", "Image orientation:"))
+            self.label_6.setText(_translate("MainWindow", "Flip the image by taking the ~mirror image~"))
+            self.label_16.setText(_translate("MainWindow", "How to align the XY axis? Hover over the image, click and drag it around."))
+            self.label_17.setText(_translate("MainWindow", "How to rotate the image? Click and drag the top left or bottom right corner. "))
 
 
 
@@ -444,7 +460,6 @@ class Ui_MainWindow(object):
 
             # Set up next data
             self.numberpath = self.numberpath + 1
-            print(self.numberpath)
             data   = pd.read_pickle(self.paths_to_data[self.numberpath])
             self.X = data.to_numpy()
             self.graphicsView.clear()
@@ -480,67 +495,60 @@ class Ui_MainWindow(object):
     def Refresh(self):
 
         self.graphicsView.clear()
-        self.graphicsView.plot(self.X[:,0], self.X[:,1],pen=None, symbol='o', symbolPen=None, symbolSize=5)
 
-        radius  = float(self.lineEdit.text())#7 # how many neighboring cells to calculate distance
-        cells_in_circle_thresh = int(self.lineEdit_2.text())#6 # squared sum ucledean distance
+        clustering = DBSCAN(eps=float(self.lineEdit.text()), min_samples=int(self.lineEdit_2.text())).fit(self.X)
+        self.labels = clustering.labels_
+        self.colonyID = clustering.labels_
+        
 
-        x_ = self.X[:,0]
-        y_ = self.X[:,1]
-        cells_in_circle = []
-        passed_thresh = []
+
+        new_label = []
+        for label in self.labels:
+            if label > 0:
+                new_label.append('w')
+            else:
+                new_label.append('r')
+        self.labels = new_label
+
+        self.scatter_plot_item = pg.ScatterPlotItem(size=5, pen=pg.mkPen(None))
+        self.scatter_plot_item.clear()
+        self.scatter_plot_item.setData(pos=self.X, brush=self.labels)
+
+
+        self.graphicsView.clear()
+        self.graphicsView.addItem(self.scatter_plot_item)
+
+    def Clean(self):
+
         self.X_clean = []
         self.Y_clean = []
 
-        for i in range(len(x_)):
-            x_0 = self.X[i,0]
-            y_0 = self.X[i,1]
-            x, y = np.where((x_[:,np.newaxis] - x_0)**2 + (y_ - y_0)**2 <= radius**2)
+        for i,l in enumerate(self.labels):
+            if l == 'w':
+                self.X_clean.append(self.X[i,0])
+                self.Y_clean.append(self.X[i,1])
 
-            if cells_in_circle_thresh <= len(x):
-                passed_thresh.append(i)
-                cells_in_circle.append(len(x))
-                self.X_clean.append(x_0)
-                self.Y_clean.append(y_0)
-        self.graphicsView.plot(self.X_clean[:,0], self.X_clean[:,1],pen=None, symbol='o', symbolPen='g', symbolSize=5)
+        d = {'x': self.X_clean, 'y': self.Y_clean}
+        data = pd.DataFrame(data=d)
+        self.X = data.to_numpy()
+        self.labels = ['w']*len(self.X_clean)
 
+        self.scatter_plot_item = pg.ScatterPlotItem(size=5, pen=pg.mkPen(None))
+        self.scatter_plot_item.clear()
+        self.scatter_plot_item.setData(pos=self.X, brush=self.labels)
 
-
-
-
-    def Clean(self):
         self.graphicsView.clear()
-        self.X = self.X_clean
-        self.graphicsView.plot(self.X[:,0], self.X[:,1],pen=None, symbol='o', symbolPen=None, symbolSize=5)
-
+        self.graphicsView.addItem(self.scatter_plot_item)
 
     #---------- Step2 ------------
 
     def Estimate(self):
-        self.graphicsView.clear()
-        self.graphicsView.plot(self.X[:,0], self.X[:,1],pen=None, symbol='o', symbolPen=None, symbolSize=5)
-
-        n_max = 100
-        n = 0
-        n_components = np.arange(0, n_max)
-        models = []
-        while n < n_max:
-            n +=1
-            if n > 3:
-                if models[-2] > models[-1]:
-                    models.append(mixture.GaussianMixture(n, covariance_type='full', random_state=0).fit(self.X).bic(self.X))
-                else:
-                    models.append(mixture.GaussianMixture(n, covariance_type='full', random_state=0).fit(self.X).bic(self.X))
-                    if models[-2] < models[-1]:
-                        break
-            else:
-                models.append(mixture.GaussianMixture(n, covariance_type='full', random_state=0).fit(self.X).bic(self.X))
 
         self.lineEdit_3.clear()
-        self.lineEdit_3.setText(str(n_components[models.index(min(models))]))
+        clustering = DBSCAN(eps=float(self.lineEdit.text()), min_samples=int(self.lineEdit_2.text())).fit(self.X)
+        self.lineEdit_3.setText(str(max(np.unique(clustering.labels_))))
 
     def plot_predicted(self):
-
         self.graphicsView.clear()
         self.z = int(self.lineEdit_3.text())
 
@@ -565,6 +573,33 @@ class Ui_MainWindow(object):
         self.graphicsView.clear()
         self.graphicsView.addItem(self.scatter_plot_item)
 
+        # self.graphicsView.clear()
+
+        # clustering = DBSCAN(eps=float(self.lineEdit_3.text()), min_samples=int(self.lineEdit_4.text())).fit(self.X)
+        # self.labels = clustering.labels_
+        # self.colonyID = clustering.labels_
+
+
+        # #random color for new label
+        # #new_color = pg.mkColor(random.choice(['w','#E6DAA6','#06C2AC','#6E750E','#FF7F50','#054907','#380282','#C79FEF','#FF4500','#069AF3','#ADD8E6','#90EE90']))
+        
+
+        # new_label = []
+        # for label in self.labels:
+        #     # new_color = pg.mkColor(random.choice(['w','#E6DAA6','#06C2AC','#6E750E','#FF7F50','#054907','#380282','#C79FEF','#FF4500','#069AF3','#ADD8E6','#90EE90']))
+        #     # new_label.append(new_color )
+        #     new_label.append(pg.intColor(label,np.floor(np.max(self.labels)/10)  ))
+        # self.labels = new_label
+
+        # self.scatter_plot_item = pg.ScatterPlotItem(size=5, pen=pg.mkPen(None))
+        # self.scatter_plot_item.clear()
+        # self.scatter_plot_item.setData(pos=self.X, brush=self.labels)
+
+
+        # self.graphicsView.clear()
+        # self.graphicsView.addItem(self.scatter_plot_item)
+
+
     def mouse_position(self,e):
 
         pos = e[0]
@@ -583,6 +618,34 @@ class Ui_MainWindow(object):
     def displayKeysD(self,mapping):
         self.keep_points = 'Delete'
         self.define_colonies()
+
+    def displayKeysW(self,mapping):
+        self.newLab = 'w'
+        self.clean_colonies()
+
+    def displayKeysR(self,mapping):
+        self.newLab  = 'r'
+        self.clean_colonies()
+
+    def clean_colonies(self):
+
+        points = np.vstack((self.X[:,0], self.X[:,1])).T
+        lasso  = np.vstack((self.mouse_x, self.mouse_y)).T
+        p = Path(lasso) # make a polygon
+        grid = p.contains_points(points)
+
+        for i,m in enumerate(grid):
+            if m == True:
+                self.labels[i] = self.newLab 
+
+        self.scatter_plot_item = pg.ScatterPlotItem(size=5, pen=pg.mkPen(None))
+        self.scatter_plot_item.clear()
+        self.scatter_plot_item.setData(pos=self.X, brush=self.labels)
+        self.graphicsView.clear()
+        self.graphicsView.addItem(self.scatter_plot_item)
+
+        self.mouse_x = []
+        self.mouse_y = [] 
 
     def define_colonies(self):
 
