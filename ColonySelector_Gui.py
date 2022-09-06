@@ -403,7 +403,7 @@ class Ui_MainWindow(object):
         self.label_22.setText(_translate("MainWindow", "         Step 2    Shift = Circle colony        A = Accept colony        D = Delete"))
         self.label_13.setText(_translate("MainWindow", "File name"))
         self.label_15.setText(_translate("MainWindow", "an area (includes tho point itself)"))
-        self.label_10.setText(_translate("MainWindow", "Numb of colonies:"))
+        self.label_10.setText(_translate("MainWindow", "Number of colonies:"))
         self.label_13.setText(_translate("MainWindow", self.filename))
 
         if paths_to_images != "":
